@@ -1,7 +1,9 @@
 <template>
 	<div class="dashboard">
 		<h1>Dashboard</h1>
-		<button @click="sendGetRequest()">Click me!</button>
+		<v-card elevation="4">
+			<v-btn @click="sendGetRequest()">Click me!</v-btn>
+		</v-card>
 	</div>
 </template>
 
