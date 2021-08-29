@@ -5,17 +5,17 @@
 	</div>
 </template>
 
-<script>
+<script lang="ts">
+	import { Vue, Component } from "vue-property-decorator";
 	import axios from "axios";
 
-	export default {
-		methods: {
-			async sendGetRequest() {
-				const message = await axios.get("http://localhost:3000/api");
-				console.log(message.data.message);
-			},
-		},
-	};
+	@Component
+	export default class Dashboard extends Vue {
+		async sendGetRequest() {
+			const message = await axios.get("http://localhost:3000/api");
+			console.log(message.data.message);
+		}
+	}
 </script>
 
 <style scoped>

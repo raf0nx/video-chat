@@ -1,18 +1,17 @@
 <template>
-	<div id="app">
-		<dashboard msg="Welcome to Your Vue.js App" />
-	</div>
+	<div id="app"><Dashboard /></div>
 </template>
 
-<script>
-	import Dashboard from "./components/Dashboard.vue";
+<script lang="ts">
+	import { Component, Vue } from "vue-property-decorator";
+	import Dashboard from "@/components/Dashboard.vue";
 
-	export default {
-		name: "App",
+	@Component({
 		components: {
 			Dashboard,
 		},
-	};
+	})
+	export default class App extends Vue {}
 </script>
 
 <style>
