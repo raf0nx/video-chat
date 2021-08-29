@@ -1,12 +1,7 @@
-import {
-	Module,
-	VuexModule,
-	Mutation,
-	Action,
-	getModule,
-} from 'vuex-module-decorators';
+import { Module, VuexModule, getModule } from 'vuex-module-decorators';
 
 import store from '@/store/store';
+import { Status } from '@/enums/Status';
 
 export interface SocketState {
 	room: string;
@@ -19,7 +14,7 @@ export interface SocketState {
 class Socket extends VuexModule implements SocketState {
 	room = '';
 	username = '';
-	status = '';
+	status = Status.AVAILABLE;
 	rooms = [];
 }
 
