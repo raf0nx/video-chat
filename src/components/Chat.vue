@@ -28,7 +28,8 @@
 							"
 						>
 							<v-select
-								v-model="roomName"
+								v-model="room"
+								@change="changeRoomHandler($event)"
 								:items="rooms"
 								item-text="name"
 								item-value="name"
@@ -50,20 +51,41 @@
 	import { Vue, Component } from "vue-property-decorator";
 
 	import { SocketModule } from "@/store/Socket";
+	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 
 	@Component
 	export default class Chat extends Vue {
-		get roomName(): string {
-			return SocketModule.room;
-		}
+		messages = [];
+		room = SocketModule.room;
+		username = SocketModule.username;
 
 		get rooms(): [] {
 			return SocketModule.rooms as [];
 		}
 
-		logout(): void {
-			this.$router.push({ name: "Home" });
-			console.log("Logged out!");
+		beforeCreate(): void {
+			this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
+		}
+
+		async logout(): Promise<void> {
+			try {
+				this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
+					room: this.room,
+					username: this.username,
+				});
+				await SocketModule.leaveChat(this.username);
+				this.$socket.close();
+				this.$router.push({ name: "Home" });
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		changeRoomHandler(roomSelected: string): void {
+			this.$socket.emit(WebSocketEvents.LEAVE_ROOM, this.$store.state);
+			SocketModule.changeRoom(roomSelected);
+			this.messages.length = 0;
+			this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
 		}
 	}
 </script>
