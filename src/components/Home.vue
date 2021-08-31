@@ -5,7 +5,7 @@
 				>Welcome back!</v-card-title
 			>
 			<v-divider />
-			<v-card-subtitle class="pt-8"
+			<v-card-subtitle class="pt-8 text-center"
 				>Choose your username and the conference room</v-card-subtitle
 			>
 			<v-form @submit.prevent="loginUser()" class="pa-8">
@@ -71,7 +71,7 @@
 					room: this.room,
 				});
 				SocketModule.joinRoom(response.data);
-				this.$router.push("/chat");
+				this.$router.push({ name: "Chat" });
 			} catch (error) {
 				console.error(error);
 			}
