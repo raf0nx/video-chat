@@ -14,7 +14,7 @@ import { URL } from '@/utils/URL';
 export interface SocketState {
 	room: string;
 	username: string;
-	status: string;
+	status: Status;
 	rooms: { id: number; name: string }[];
 }
 
@@ -53,6 +53,25 @@ class Socket extends VuexModule implements SocketState {
 		this.username = '';
 	}
 
+	@Mutation
+	private CHANGE_STATUS(): void {
+		let nextStatus: Status;
+
+		switch (this.status) {
+			case Status.AVAILABLE:
+				nextStatus = Status.AWAY;
+				break;
+			case Status.AWAY:
+				nextStatus = Status.UNAVAILABLE;
+				break;
+			case Status.UNAVAILABLE:
+				nextStatus = Status.AVAILABLE;
+				break;
+		}
+
+		this.status = nextStatus;
+	}
+
 	@Action
 	setRooms(rooms: []): void {
 		this.SET_ROOMS(rooms);
@@ -76,6 +95,11 @@ class Socket extends VuexModule implements SocketState {
 		} catch (error) {
 			console.error(error);
 		}
+	}
+
+	@Action
+	changeStatus(): void {
+		this.CHANGE_STATUS();
 	}
 }
 
