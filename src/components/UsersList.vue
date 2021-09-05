@@ -1,6 +1,6 @@
 <template>
-	<v-card class="users-list" elevation="4">
-		<v-list flat>
+	<v-card class="users-list" elevation="4" height="100%">
+		<v-list flat class="py-0">
 			<v-list-item-group>
 				<v-list-item
 					v-for="(user, id) in users"

@@ -1,7 +1,7 @@
 <template>
 	<v-container class="chat pa-0" fluid>
-		<v-card>
-			<v-toolbar>
+		<v-card height="100vh">
+			<v-app-bar fixed>
 				<v-row>
 					<v-col cols="2" class="py-0 pl-0">
 						<div class="d-flex justify-space-between">
@@ -12,7 +12,7 @@
 								@click="changeStatus()"
 								:color="getMyStatusColor()"
 								x-large
-                                class="chat__my-status"
+								class="chat__my-status"
 								>mdi-circle-small</v-icon
 							>
 						</div>
@@ -44,16 +44,18 @@
 						</div>
 					</v-col>
 				</v-row>
-			</v-toolbar>
-			<v-row>
-				<v-col cols="2" class="pr-0 pb-0">
+			</v-app-bar>
+			<v-row class="chat__row pt-16 my-0">
+				<v-col cols="2" class="pa-0">
 					<UsersList
 						:users="users"
 						:openPrivateChat="openPrivateChat.chat"
 						@openChat="openChat($event)"
 					/>
 				</v-col>
-				<v-col cols="10" class="pl-0"></v-col>
+				<v-col cols="10" class="pa-0">
+					<ChatArea :messages="messages" />
+				</v-col>
 			</v-row>
 		</v-card>
 	</v-container>
@@ -65,13 +67,18 @@
 	import { SocketModule } from "@/store/Socket";
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import UsersList from "@/components/UsersList.vue";
+	import ChatArea from "@/components/ChatArea.vue";
 	import { Status } from "@/enums/Status";
 
 	@Component({
-		components: { UsersList },
+		components: { UsersList, ChatArea },
 	})
 	export default class Chat extends Vue {
-		messages = [];
+		messages = [
+			{ join: true, msg: "Somebody joined the room!" },
+			{ join: false, msg: "Hi!", isMe: true },
+			{ join: false, msg: "Hi there!", isMe: false },
+		];
 		room = SocketModule.room;
 		username = SocketModule.username;
 		users = [
@@ -158,10 +165,13 @@
 	.chat {
 		height: 100vh;
 	}
-    .chat .chat__my-status::after {
-        width: 0;
-        height: 0;
+    .chat .chat__row {
+        height: 100%;
     }
+	.chat .chat__my-status::after {
+		width: 0;
+		height: 0;
+	}
 	.chat .v-card__text {
 		font-family: "Nunito", sans-serif !important;
 	}
