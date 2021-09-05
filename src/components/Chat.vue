@@ -53,8 +53,9 @@
 						@openChat="openChat($event)"
 					/>
 				</v-col>
-				<v-col cols="10" class="pa-0">
+				<v-col cols="10" class="pa-0 d-flex flex-column justify-space-between">
 					<ChatArea :messages="messages" />
+					<MessageArea @sendMessage="sendMessage($event)" />
 				</v-col>
 			</v-row>
 		</v-card>
@@ -68,10 +69,11 @@
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import UsersList from "@/components/UsersList.vue";
 	import ChatArea from "@/components/ChatArea.vue";
+	import MessageArea from "@/components/MessageArea.vue";
 	import { Status } from "@/enums/Status";
 
 	@Component({
-		components: { UsersList, ChatArea },
+		components: { UsersList, ChatArea, MessageArea },
 	})
 	export default class Chat extends Vue {
 		messages = [
@@ -158,6 +160,13 @@
 			SocketModule.changeStatus();
 			this.$socket.emit(WebSocketEvents.CHANGE_STATUS, this.$store.state);
 		}
+
+		sendMessage(message: string): void {
+			this.$socket.emit(WebSocketEvents.PUBLIC_MESSAGE, {
+				...this.$store.state,
+				message,
+			});
+		}
 	}
 </script>
 
@@ -165,9 +174,9 @@
 	.chat {
 		height: 100vh;
 	}
-    .chat .chat__row {
-        height: 100%;
-    }
+	.chat .chat__row {
+		height: 100%;
+	}
 	.chat .chat__my-status::after {
 		width: 0;
 		height: 0;

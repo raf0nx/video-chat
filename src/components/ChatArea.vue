@@ -1,5 +1,5 @@
 <template>
-	<div class="chat-area pa-8">
+	<div class="chat-area pa-8 flex-grow-1">
 		<div
 			v-for="(message, idx) in messages"
 			:key="idx"
@@ -53,7 +53,7 @@
                                 maxLength,
                                 chunks
                             )}
-                            `;
+                        `;
 					} else {
 						chunks = Math.ceil(binding.value.length / maxLength);
 						el.innerHTML = (vnode.context as ChatArea).getChunkText(
@@ -96,6 +96,10 @@
 </script>
 
 <style>
+	.chat-area {
+		overflow-x: scroll;
+		flex-basis: 0px;
+	}
 	.chat-area .body-2 {
 		font-family: "Nunito", sans-serif !important;
 	}
