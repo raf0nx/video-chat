@@ -1,5 +1,10 @@
 <template>
 	<v-container class="chat pa-0" fluid>
+		<PrivateChat
+			v-if="openPrivateChat.chat"
+			:showDialog="openPrivateChat"
+			@closeChat="closePrivateChat()"
+		/>
 		<v-card height="100vh">
 			<v-app-bar fixed>
 				<v-row>
@@ -53,8 +58,11 @@
 						@openChat="openChat($event)"
 					/>
 				</v-col>
-				<v-col cols="10" class="pa-0 d-flex flex-column justify-space-between">
-					<ChatArea :messages="messages" />
+				<v-col
+					cols="10"
+					class="pa-0 d-flex flex-column justify-space-between"
+				>
+					<ChatArea :messages="messages" :maxMessageLength="120" />
 					<MessageArea @sendMessage="sendMessage($event)" />
 				</v-col>
 			</v-row>
@@ -70,10 +78,11 @@
 	import UsersList from "@/components/UsersList.vue";
 	import ChatArea from "@/components/ChatArea.vue";
 	import MessageArea from "@/components/MessageArea.vue";
+	import PrivateChat from "@/components/PrivateChat.vue";
 	import { Status } from "@/enums/Status";
 
 	@Component({
-		components: { UsersList, ChatArea, MessageArea },
+		components: { UsersList, ChatArea, MessageArea, PrivateChat },
 	})
 	export default class Chat extends Vue {
 		messages = [
@@ -99,9 +108,9 @@
 		];
 		openPrivateChat = {
 			chat: false,
-			user: "",
+			user: null,
 			msg: [],
-			room: "",
+			room: null,
 			closed: false,
 		};
 
@@ -147,7 +156,7 @@
 			this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
 		}
 
-		openChat(user: string) {
+		openChat(user: any): void {
 			this.openPrivateChat = {
 				...this.openPrivateChat,
 				chat: true,
@@ -166,6 +175,17 @@
 				...this.$store.state,
 				message,
 			});
+		}
+
+		closePrivateChat(): void {
+			this.openPrivateChat = {
+				...this.openPrivateChat,
+				chat: false,
+				closed: false,
+				user: null,
+				msg: [],
+				room: null,
+			};
 		}
 	}
 </script>

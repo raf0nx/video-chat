@@ -1,5 +1,5 @@
 <template>
-	<div class="chat-area pa-8 flex-grow-1">
+	<div class="chat-area flex-grow-1" :class="isPrivate ? 'pa-4' : 'pa-8'">
 		<div
 			v-for="(message, idx) in messages"
 			:key="idx"
@@ -37,7 +37,7 @@
 					vnode: VNode
 				): void {
 					const isObj = typeof binding.value === "object";
-					const maxLength = 120;
+					const maxLength = (vnode.context as ChatArea).maxMessageLength;
 					let chunks;
 
 					if (isObj) {
@@ -68,6 +68,8 @@
 	})
 	export default class ChatArea extends Vue {
 		@Prop() messages!: [];
+		@Prop() maxMessageLength!: number;
+		@Prop({ default: false }) isPrivate!: boolean;
 
 		getMessagePosition(message: any): string {
 			if (message.join) {
