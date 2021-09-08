@@ -10,14 +10,14 @@
 				v-if="!message.join"
 				class="py-2 px-4 rounded-xl"
 				:class="
-					message.isMe
+					message.me
 						? 'chat-area__my-message'
 						: 'chat-area__message'
 				"
-				v-message="message.msg"
+				v-message="message"
 			></p>
 			<p v-if="message.join" class="body-2 font-weight-bold">
-				{{ message.msg }}
+				{{ message.message }}
 			</p>
 		</div>
 	</div>
@@ -36,11 +36,12 @@
 					binding: DirectiveBinding,
 					vnode: VNode
 				): void {
-					const isObj = typeof binding.value === "object";
 					const maxLength = (vnode.context as ChatArea).maxMessageLength;
 					let chunks;
 
-					if (isObj) {
+                    console.log(binding.value)
+
+					if (binding.value.username) {
 						chunks = Math.ceil(
 							binding.value.message.length / maxLength
 						);
@@ -55,9 +56,11 @@
                             )}
                         `;
 					} else {
-						chunks = Math.ceil(binding.value.length / maxLength);
+						chunks = Math.ceil(
+							binding.value.message.length / maxLength
+						);
 						el.innerHTML = (vnode.context as ChatArea).getChunkText(
-							binding.value,
+							binding.value.message,
 							maxLength,
 							chunks
 						);
@@ -76,7 +79,7 @@
 				return "justify-center";
 			}
 
-			return message.isMe ? "justify-end" : "justify-start";
+			return message.me ? "justify-end" : "justify-start";
 		}
 
 		getChunkText(message: string, maxLength: number, index: number): string {

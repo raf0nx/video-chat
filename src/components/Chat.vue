@@ -84,30 +84,55 @@
 	@Component({
 		components: { UsersList, ChatArea, MessageArea, PrivateChat },
 		sockets: {
-			newUser: function (
-				users: { username: string; privateChat: boolean }[]
-			) {
-				const user = users[0];
-				const me = SocketModule.username === user.username;
+			newUser({
+				users,
+				username,
+			}: {
+				users: { username: string; status: string; privateChat: boolean }[];
+				username: string;
+			}) {
+				const me = SocketModule.username === username;
 
 				if (users.length > (this as Chat).users.length) {
 					(this as Chat).messages.push({
 						join: true,
-						msg: `${me ? "You" : user.username} joined the room!`,
+						message: `${me ? "You" : username} joined the room!`,
 					});
 				} else if (users.length < (this as Chat).users.length) {
 					(this as Chat).messages.push({
 						join: true,
-						msg: `${user.username} left the room!`,
+						message: `${username} left the room!`,
 					});
 				}
 
 				(this as Chat).users = [...users];
 			},
+			newMessage({
+				message,
+				username,
+			}: {
+				message: string;
+				username: string;
+			}) {
+				const me = SocketModule.username === username;
+				const msg = me
+					? { join: false, message }
+					: { join: false, message, username };
+				(this as Chat).messages.push({ ...msg, me });
+			},
+			leaveChat({ users, message }) {
+				(this as Chat).messages.push({ join: true, message });
+				(this as Chat).users = [...users];
+			},
 		},
 	})
 	export default class Chat extends Vue {
-		messages: { join: boolean; msg: string }[] = [];
+		messages: {
+			join: boolean;
+			message: string;
+			username?: string;
+			me?: boolean;
+		}[] = [];
 		room = SocketModule.room;
 		username = SocketModule.username;
 		users: { username: string; privateChat: boolean }[] = [];
