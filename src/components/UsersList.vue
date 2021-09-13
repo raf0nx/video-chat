@@ -20,7 +20,7 @@
 							v-if="currentUsername !== user.username"
 							class="my-0 align-self-center"
 						>
-							<v-icon :disabled="openPrivateChat"
+							<v-icon :disabled="isInPrivateChat"
 								>mdi-chat</v-icon
 							>
 						</v-list-item-icon>
@@ -33,19 +33,20 @@
 
 <script lang="ts">
 	import { Status } from "@/enums/Status";
+	import { User } from "@/interfaces/User";
 	import { SocketModule } from "@/store/Socket";
 	import { Vue, Component, Prop } from "vue-property-decorator";
 
 	@Component
 	export default class UsersList extends Vue {
-		@Prop() users!: [];
-		@Prop() openPrivateChat!: boolean;
+		@Prop() users!: User[];
+		@Prop() isInPrivateChat!: boolean;
 
 		get currentUsername(): string {
 			return SocketModule.username;
 		}
 
-		getStatusColor(user: { username: string; status: string }): string {
+		getStatusColor(user: User): string {
 			switch (user.status) {
 				case Status.AVAILABLE:
 					return "green";
@@ -59,10 +60,10 @@
 		}
 
 		openChat(username: string): void {
-			if (this.openPrivateChat) {
+			if (this.isInPrivateChat) {
 				return;
 			}
-
+            
 			this.$emit("openChat", username);
 		}
 	}

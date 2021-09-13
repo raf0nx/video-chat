@@ -1,8 +1,8 @@
 <template>
 	<v-container class="chat pa-0" fluid>
 		<PrivateChat
-			v-if="openPrivateChat.chat"
-			:showDialog="openPrivateChat"
+			v-if="privateChat.openChat"
+			:privateChat="privateChat"
 			@closeChat="closePrivateChat()"
 		/>
 		<v-card height="100vh">
@@ -54,7 +54,7 @@
 				<v-col cols="2" class="pa-0">
 					<UsersList
 						:users="users"
-						:openPrivateChat="openPrivateChat.chat"
+						:isInPrivateChat="privateChat.openChat"
 						@openChat="openChat($event)"
 					/>
 				</v-col>
@@ -80,17 +80,15 @@
 	import MessageArea from "@/components/MessageArea.vue";
 	import PrivateChat from "@/components/PrivateChat.vue";
 	import { Status } from "@/enums/Status";
+	import { Message } from "@/interfaces/Message";
+	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
+	import { User } from "@/interfaces/User";
+	import { Room } from "@/interfaces/Room";
 
 	@Component({
 		components: { UsersList, ChatArea, MessageArea, PrivateChat },
 		sockets: {
-			newUser({
-				users,
-				username,
-			}: {
-				users: { username: string; status: string; privateChat: boolean }[];
-				username: string;
-			}) {
+			newUser({ users, username }: { users: User[]; username: string }) {
 				const me = SocketModule.username === username;
 
 				if (users.length > (this as Chat).users.length) {
@@ -120,32 +118,62 @@
 					: { join: false, message, username };
 				(this as Chat).messages.push({ ...msg, me });
 			},
-			leaveChat({ users, message }) {
+			leaveChat({ users, message }: { users: User[]; message: string }) {
 				(this as Chat).messages.push({ join: true, message });
 				(this as Chat).users = [...users];
+			},
+			privateChat({ to, from }: { to: string; from: string }) {
+				if (
+					SocketModule.username !== to ||
+					(this as Chat).privateChat.openChat
+				) {
+					return;
+				}
+
+				(this as Chat).privateChat = {
+					...(this as Chat).privateChat,
+					openChat: true,
+					user: from,
+					room: to,
+					messages: [
+						{
+							message: `Write something to ${from}!`,
+							join: true,
+						},
+					],
+				};
+			},
+			leavePrivateRoom({ privateMessage }: { privateMessage: string }) {
+				if ((this as Chat).privateChat.closed) {
+					return;
+				}
+
+				(this as Chat).privateChat.messages.push({
+					message: privateMessage,
+					join: true,
+				});
+				(this as Chat).privateChat = {
+					...(this as Chat).privateChat,
+					closed: true,
+				};
 			},
 		},
 	})
 	export default class Chat extends Vue {
-		messages: {
-			join: boolean;
-			message: string;
-			username?: string;
-			me?: boolean;
-		}[] = [];
+		messages: Message[] = [];
 		room = SocketModule.room;
 		username = SocketModule.username;
-		users: { username: string; privateChat: boolean }[] = [];
-		openPrivateChat = {
-			chat: false,
-			user: null,
-			msg: [],
-			room: null,
+		users: User[] = [];
+		privateChat: PrivateChatModel = {
+			openChat: false,
+			user: "",
+			messages: [],
+			room: "",
 			closed: false,
 		};
 
-		get rooms(): [] {
-			return SocketModule.rooms as [];
+		get rooms(): Room[] {
+			return SocketModule.rooms;
 		}
 
 		beforeCreate(): void {
@@ -158,7 +186,9 @@
 					room: this.room,
 					username: this.username,
 				});
+
 				await SocketModule.leaveChat(this.username);
+
 				this.$socket.close();
 				this.$router.push({ name: "Home" });
 			} catch (error) {
@@ -186,12 +216,18 @@
 			this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
 		}
 
-		openChat(user: any): void {
-			this.openPrivateChat = {
-				...this.openPrivateChat,
-				chat: true,
-				room: user,
-				user,
+		openChat(username: string): void {
+			this.privateChat = {
+				...this.privateChat,
+				openChat: true,
+				room: username,
+				user: username,
+				messages: [
+					{
+						join: true,
+						message: `Write something to ${username}!`,
+					},
+				],
 			};
 		}
 
@@ -208,13 +244,13 @@
 		}
 
 		closePrivateChat(): void {
-			this.openPrivateChat = {
-				...this.openPrivateChat,
-				chat: false,
+			this.privateChat = {
+				...this.privateChat,
+				openChat: false,
 				closed: false,
-				user: null,
-				msg: [],
-				room: null,
+				user: "",
+				messages: [],
+				room: "",
 			};
 		}
 	}

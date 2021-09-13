@@ -10,9 +10,7 @@
 				v-if="!message.join"
 				class="py-2 px-4 rounded-xl"
 				:class="
-					message.me
-						? 'chat-area__my-message'
-						: 'chat-area__message'
+					message.me ? 'chat-area__my-message' : 'chat-area__message'
 				"
 				v-message="message"
 			></p>
@@ -28,6 +26,9 @@
 	import { Vue, Component, Prop } from "vue-property-decorator";
 	import { DirectiveBinding } from "vue/types/options";
 
+	import { Message } from "@/interfaces/Message";
+	import MessageDirective from "@/directives/message";
+
 	@Component({
 		directives: {
 			message: {
@@ -36,45 +37,17 @@
 					binding: DirectiveBinding,
 					vnode: VNode
 				): void {
-					const maxLength = (vnode.context as ChatArea).maxMessageLength;
-					let chunks;
-
-                    console.log(binding.value)
-
-					if (binding.value.username) {
-						chunks = Math.ceil(
-							binding.value.message.length / maxLength
-						);
-						el.innerHTML = `
-                            <span style="font-weight:bold">${
-                                binding.value.username
-                            }</span>: 
-                            ${(vnode.context as ChatArea).getChunkText(
-                                binding.value.message,
-                                maxLength,
-                                chunks
-                            )}
-                        `;
-					} else {
-						chunks = Math.ceil(
-							binding.value.message.length / maxLength
-						);
-						el.innerHTML = (vnode.context as ChatArea).getChunkText(
-							binding.value.message,
-							maxLength,
-							chunks
-						);
-					}
+					MessageDirective(el, binding, vnode.context as ChatArea);
 				},
 			},
 		},
 	})
 	export default class ChatArea extends Vue {
-		@Prop() messages!: [];
+		@Prop() messages!: Message[];
 		@Prop() maxMessageLength!: number;
 		@Prop({ default: false }) isPrivate!: boolean;
 
-		getMessagePosition(message: any): string {
+		getMessagePosition(message: Message): string {
 			if (message.join) {
 				return "justify-center";
 			}

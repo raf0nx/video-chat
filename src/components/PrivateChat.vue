@@ -1,17 +1,15 @@
 <template>
 	<v-dialog
-		v-model="showDialog.chat"
+		v-model="privateChat.openChat"
 		max-width="350px"
 		scrollable
 		hide-overlay
 	>
 		<v-card>
 			<v-card-actions class="justify-space-between py-4">
-				<v-icon
-					@click="video(!videoCall)"
-					:disabled="!showDialog.msg.length"
-					>{{ videoCall ? "mdi-video-off" : "mdi-video" }}</v-icon
-				>
+				<v-icon :disabled="!privateChat.messages.length">{{
+					true ? "mdi-video-off" : "mdi-video"
+				}}</v-icon>
 				<v-icon @click="closeChat()">mdi-close</v-icon>
 			</v-card-actions>
 			<v-card-text
@@ -19,7 +17,7 @@
 				style="height: 400px"
 			>
 				<ChatArea
-					:messages="showDialog.msg"
+					:messages="privateChat.messages"
 					:maxMessageLength="30"
 					:isPrivate="true"
 				/>
@@ -35,7 +33,7 @@
 					filled
 					rounded
 					dense
-					:disabled="showDialog.closed"
+					:disabled="privateChat.closed"
 					@click:append="sendPrivateMessage(privateMessage)"
 					@keyup.enter="sendPrivateMessage(privateMessage)"
 				></v-textarea>
@@ -50,39 +48,36 @@
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import { SocketModule } from "@/store/Socket";
 	import ChatArea from "@/components/ChatArea.vue";
+	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
 
 	@Component({ components: { ChatArea } })
 	export default class PrivateChat extends Vue {
-		@Prop() showDialog!: {
-			chat: boolean;
-			user: string;
-			msg: [];
-			room: string;
-			closed: boolean;
-		};
+		@Prop() privateChat!: PrivateChatModel;
 
-		videoCall = false;
-		videoAnswer = {
-			video: false,
-			remoteDesc: undefined,
-			candidate: undefined,
-			close: false,
-		};
 		privateMessage = "";
 
-		@Watch("showDialog", { deep: true })
-		// @ts-ignore
-		joinChatRoom({ chat }, oldVal): void {
-			if (chat && chat !== oldVal.chat) {
-				if (this.showDialog.room !== SocketModule.username) {
+		created() {
+			this.joinChatRoom(this.privateChat.openChat, {
+				openChat: false,
+				user: "",
+				messages: [],
+				room: "",
+				closed: false,
+			});
+		}
+
+		@Watch("privateChat", { deep: true })
+		joinChatRoom(openChat: boolean, oldVal: PrivateChatModel): void {
+			if (openChat && openChat !== oldVal.openChat) {
+				if (this.privateChat.room !== SocketModule.username) {
 					this.$socket.emit(WebSocketEvents.JOIN_PRIVATE_ROOM, {
 						...this.$store.state,
-						to: this.showDialog.user,
+						to: this.privateChat.user,
 						from: SocketModule.username,
 					});
 				}
 
-				if (this.showDialog.room === SocketModule.username) {
+				if (this.privateChat.room === SocketModule.username) {
 					this.$socket.emit(WebSocketEvents.JOIN_PRIVATE_ROOM, {
 						...this.$store.state,
 						to: SocketModule.username,
@@ -94,10 +89,9 @@
 		}
 
 		closeChat(): void {
-			this.videoCall = false;
 			this.$socket.emit(WebSocketEvents.LEAVE_PRIVATE_ROOM, {
 				room: SocketModule.room,
-				to: this.showDialog.room,
+				to: this.privateChat.room,
 				from: SocketModule.username,
 			});
 
@@ -111,24 +105,12 @@
 
 			this.$socket.emit(WebSocketEvents.PRIVATE_MESSAGE, {
 				privateMessage: message,
-				to: this.showDialog.user,
+				to: this.privateChat.user,
 				from: SocketModule.username,
-				room: this.showDialog.room,
+				room: this.privateChat.room,
 			});
 
 			this.privateMessage = "";
-		}
-
-		video(value: boolean): void {
-			this.videoCall = value;
-
-			if (value) {
-				this.videoAnswer = { ...this.videoAnswer, video: !value };
-			} else {
-				this.sendPrivateMessage({
-					msg: `${SocketModule.username} has closed the video`,
-				});
-			}
 		}
 	}
 </script>

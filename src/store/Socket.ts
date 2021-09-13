@@ -10,12 +10,13 @@ import axios from 'axios';
 import store from '@/store/store';
 import { Status } from '@/enums/Status';
 import { URL } from '@/utils/URL';
+import { Room } from '@/interfaces/Room';
 
 export interface SocketState {
 	room: string;
 	username: string;
 	status: Status;
-	rooms: { id: number; name: string }[];
+	rooms: Room[];
 }
 
 @Module({ dynamic: true, store, name: 'socket' })
