@@ -169,6 +169,19 @@
 					closed: true,
 				};
 			},
+			privateMessage({
+				privateMessage,
+				to,
+			}: {
+				privateMessage: string;
+				to: string;
+			}): void {
+				(this as Chat).privateChat.messages.push({
+					message: privateMessage,
+					join: false,
+					me: SocketModule.username !== to,
+				});
+			},
 		},
 	})
 	export default class Chat extends Vue {

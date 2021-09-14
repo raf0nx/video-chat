@@ -107,8 +107,8 @@
 			this.$emit("closeChat");
 		}
 
-		sendPrivateMessage(message: { msg: string }): void {
-			if (typeof message !== "object" && !this.privateMessage.trim().length) {
+		sendPrivateMessage(message: string): void {
+			if (!this.privateMessage.trim().length) {
 				return;
 			}
 
