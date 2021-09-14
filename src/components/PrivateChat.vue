@@ -4,13 +4,19 @@
 		max-width="350px"
 		scrollable
 		hide-overlay
+		persistent
 	>
 		<v-card>
 			<v-card-actions class="justify-space-between py-4">
-				<v-icon :disabled="!privateChat.messages.length">{{
-					true ? "mdi-video-off" : "mdi-video"
-				}}</v-icon>
-				<v-icon @click="closeChat()">mdi-close</v-icon>
+				<span class="font-weight-bold">{{ privateChat.user }}</span>
+				<div>
+					<v-icon
+						:disabled="!privateChat.messages.length"
+						class="mr-2"
+						>{{ true ? "mdi-video-off" : "mdi-video" }}</v-icon
+					>
+					<v-icon @click="closeChat()">mdi-close</v-icon>
+				</div>
 			</v-card-actions>
 			<v-card-text
 				class="pa-0 d-flex flex-column justify-space-between"
@@ -57,7 +63,7 @@
 		privateMessage = "";
 
 		created() {
-			this.joinChatRoom(this.privateChat.openChat, {
+			this.joinChatRoom(this.privateChat, {
 				openChat: false,
 				user: "",
 				messages: [],
@@ -66,8 +72,11 @@
 			});
 		}
 
-		@Watch("privateChat", { deep: true })
-		joinChatRoom(openChat: boolean, oldVal: PrivateChatModel): void {
+		@Watch("privateChat")
+		joinChatRoom(
+			{ openChat }: PrivateChatModel,
+			oldVal: PrivateChatModel
+		): void {
 			if (openChat && openChat !== oldVal.openChat) {
 				if (this.privateChat.room !== SocketModule.username) {
 					this.$socket.emit(WebSocketEvents.JOIN_PRIVATE_ROOM, {

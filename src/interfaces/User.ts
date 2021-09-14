@@ -1,5 +1,7 @@
+import { Status } from '@/enums/Status';
+
 export interface User {
 	username: string;
-	status: string;
-	isInPrivateChat: boolean;
+	status: Status;
+	privateChat: string;
 }

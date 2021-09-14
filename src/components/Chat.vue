@@ -88,7 +88,13 @@
 	@Component({
 		components: { UsersList, ChatArea, MessageArea, PrivateChat },
 		sockets: {
-			newUser({ users, username }: { users: User[]; username: string }) {
+			newUser({
+				users,
+				username,
+			}: {
+				users: User[];
+				username: string;
+			}): void {
 				const me = SocketModule.username === username;
 
 				if (users.length > (this as Chat).users.length) {
@@ -111,18 +117,24 @@
 			}: {
 				message: string;
 				username: string;
-			}) {
+			}): void {
 				const me = SocketModule.username === username;
 				const msg = me
 					? { join: false, message }
 					: { join: false, message, username };
 				(this as Chat).messages.push({ ...msg, me });
 			},
-			leaveChat({ users, message }: { users: User[]; message: string }) {
+			leaveChat({
+				users,
+				message,
+			}: {
+				users: User[];
+				message: string;
+			}): void {
 				(this as Chat).messages.push({ join: true, message });
 				(this as Chat).users = [...users];
 			},
-			privateChat({ to, from }: { to: string; from: string }) {
+			privateChat({ to, from }: { to: string; from: string }): void {
 				if (
 					SocketModule.username !== to ||
 					(this as Chat).privateChat.openChat
@@ -143,7 +155,7 @@
 					],
 				};
 			},
-			leavePrivateRoom({ privateMessage }: { privateMessage: string }) {
+			leavePrivateRoom({ privateMessage }: { privateMessage: string }): void {
 				if ((this as Chat).privateChat.closed) {
 					return;
 				}
@@ -244,14 +256,13 @@
 		}
 
 		closePrivateChat(): void {
-			this.privateChat = {
-				...this.privateChat,
+			Object.assign(this.privateChat, {
 				openChat: false,
 				closed: false,
 				user: "",
 				messages: [],
 				room: "",
-			};
+			});
 		}
 	}
 </script>

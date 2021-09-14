@@ -24,10 +24,10 @@ class Socket extends VuexModule implements SocketState {
 	room = '';
 	username = '';
 	status = Status.AVAILABLE;
-	rooms = [];
+	rooms: Room[] = [];
 
 	@Mutation
-	private SET_ROOMS(rooms: []): void {
+	private SET_ROOMS(rooms: Room[]): void {
 		this.rooms = rooms;
 	}
 
@@ -74,7 +74,7 @@ class Socket extends VuexModule implements SocketState {
 	}
 
 	@Action
-	setRooms(rooms: []): void {
+	setRooms(rooms: Room[]): void {
 		this.SET_ROOMS(rooms);
 	}
 
