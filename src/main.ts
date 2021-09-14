@@ -5,7 +5,7 @@ import VueSocketIO from 'vue-socket.io';
 import vuetify from './plugins/vuetify';
 import router from '@/router';
 import store from '@/store/store';
-import { URL } from '@/utils/URL';
+import { URL } from '@/utils/utils';
 
 Vue.config.productionTip = false;
 

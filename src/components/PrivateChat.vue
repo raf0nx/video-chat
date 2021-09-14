@@ -55,6 +55,7 @@
 	import { SocketModule } from "@/store/Socket";
 	import ChatArea from "@/components/ChatArea.vue";
 	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
+	import { sortNamesAlphabetically } from "@/utils/utils";
 
 	@Component({ components: { ChatArea } })
 	export default class PrivateChat extends Vue {
@@ -83,6 +84,10 @@
 						...this.$store.state,
 						to: this.privateChat.user,
 						from: SocketModule.username,
+						privateRoom: sortNamesAlphabetically(
+							this.privateChat.user,
+							SocketModule.username
+						),
 					});
 				}
 
@@ -91,6 +96,10 @@
 						...this.$store.state,
 						to: SocketModule.username,
 						from: SocketModule.username,
+						privateRoom: sortNamesAlphabetically(
+							this.privateChat.user,
+							SocketModule.username
+						),
 						joinConfirm: true,
 					});
 				}
@@ -102,6 +111,10 @@
 				room: SocketModule.room,
 				to: this.privateChat.room,
 				from: SocketModule.username,
+				privateRoom: sortNamesAlphabetically(
+					this.privateChat.user,
+					SocketModule.username
+				),
 			});
 
 			this.$emit("closeChat");
@@ -116,7 +129,10 @@
 				privateMessage: message,
 				to: this.privateChat.user,
 				from: SocketModule.username,
-				room: this.privateChat.room,
+				privateRoom: sortNamesAlphabetically(
+					this.privateChat.user,
+					SocketModule.username
+				),
 			});
 
 			this.privateMessage = "";

@@ -45,7 +45,7 @@
 	import { Vue, Component } from "vue-property-decorator";
 	import axios from "axios";
 
-	import { URL } from "@/utils/URL";
+	import { URL } from "@/utils/utils";
 	import { SocketModule } from "@/store/Socket";
 
 	@Component

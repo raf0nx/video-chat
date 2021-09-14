@@ -9,7 +9,7 @@ import axios from 'axios';
 
 import store from '@/store/store';
 import { Status } from '@/enums/Status';
-import { URL } from '@/utils/URL';
+import { URL } from '@/utils/utils';
 import { Room } from '@/interfaces/Room';
 
 export interface SocketState {
