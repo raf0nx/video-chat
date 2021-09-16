@@ -5,7 +5,22 @@
 		scrollable
 		hide-overlay
 		persistent
+		no-click-animation
 	>
+		<v-dialog
+			v-model="videoCall"
+			max-width="500px"
+			hide-overlay
+			persistent
+			no-click-animation
+		>
+			<VideoArea
+				:privateRoom="privateRoom"
+				:to="privateChat.user"
+				:videoAnswer="videoAnswer"
+				@closeVideo="video(false)"
+			/>
+		</v-dialog>
 		<v-card>
 			<v-card-actions class="justify-space-between py-4">
 				<span class="font-weight-bold">{{ privateChat.user }}</span>
@@ -13,7 +28,8 @@
 					<v-icon
 						:disabled="!privateChat.messages.length"
 						class="mr-2"
-						>{{ true ? "mdi-video-off" : "mdi-video" }}</v-icon
+						@click="video(!videoCall)"
+						>{{ videoCall ? "mdi-video-off" : "mdi-video" }}</v-icon
 					>
 					<v-icon @click="closeChat()">mdi-close</v-icon>
 				</div>
@@ -54,14 +70,30 @@
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import { SocketModule } from "@/store/Socket";
 	import ChatArea from "@/components/ChatArea.vue";
+	import VideoArea from "@/components/VideoArea.vue";
 	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
+	import { VideoAnswer } from "@/interfaces/VideoAnswer";
 	import { sortNamesAlphabetically } from "@/utils/utils";
 
-	@Component({ components: { ChatArea } })
+	@Component({ components: { ChatArea, VideoArea } })
 	export default class PrivateChat extends Vue {
 		@Prop() privateChat!: PrivateChatModel;
 
 		privateMessage = "";
+		videoCall = false;
+		videoAnswer: VideoAnswer = {
+			video: false,
+			remoteDesc: "",
+			candidate: "",
+			close: false,
+		};
+
+		get privateRoom(): string {
+			return sortNamesAlphabetically(
+				SocketModule.username,
+				this.privateChat.user
+			);
+		}
 
 		created() {
 			this.joinChatRoom(this.privateChat, {
@@ -111,10 +143,7 @@
 				room: SocketModule.room,
 				to: this.privateChat.room,
 				from: SocketModule.username,
-				privateRoom: sortNamesAlphabetically(
-					this.privateChat.user,
-					SocketModule.username
-				),
+				privateRoom: this.privateRoom,
 			});
 
 			this.$emit("closeChat");
@@ -129,19 +158,24 @@
 				privateMessage: message,
 				to: this.privateChat.user,
 				from: SocketModule.username,
-				privateRoom: sortNamesAlphabetically(
-					this.privateChat.user,
-					SocketModule.username
-				),
+				privateRoom: this.privateRoom,
 			});
 
 			this.privateMessage = "";
+		}
+
+		video(isVideoCall: boolean): void {
+			this.videoCall = isVideoCall;
+
+			isVideoCall
+				? Object.assign(this.videoAnswer, { video: !isVideoCall })
+				: this.sendPrivateMessage(`${SocketModule.username} has closed the video`);
 		}
 	}
 </script>
 
 <style>
-	.v-dialog__content {
+	.v-dialog__content:nth-child(2) {
 		justify-content: flex-end !important;
 		align-items: flex-end !important;
 	}
