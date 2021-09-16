@@ -10,7 +10,6 @@
 		<video
 			id="localVideo"
 			class="video__myself"
-			src="https://ak.picdn.net/shutterstock/videos/5242448/preview/stock-footage-lion-in-the-wild.webm"
 			autoplay
 			muted="muted"
 		></video>
@@ -100,9 +99,11 @@
 		}
 
 		onAddStream(): void {
-			this.pc.ontrack = (event) => {
-				if (!this.remoteVideo.srcObject && event.streams) {
-					this.remoteStream = event.streams[0];
+            // TODO: Refactor to the new implementation
+			// @ts-ignore
+			this.pc.onaddstream = (event) => {
+				if (!this.remoteVideo.srcObject && event.stream) {
+					this.remoteStream = event.stream;
 					this.remoteVideo.srcObject = this.remoteStream;
 				}
 			};

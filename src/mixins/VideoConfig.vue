@@ -160,7 +160,10 @@
 		}
 
 		addLocalStream(pc: RTCPeerConnection): void {
-			pc.addTrack(this.localStream as unknown as MediaStreamTrack);
+            // TODO: Refactor to the new method
+			// pc.addTrack(this.localStream as unknown as MediaStreamTrack);
+            // @ts-ignore
+			pc.addStream(this.localStream as unknown as MediaStreamTrack);
 		}
 
 		addCandidate(pc: RTCPeerConnection, candidate: RTCIceCandidateInit): void {

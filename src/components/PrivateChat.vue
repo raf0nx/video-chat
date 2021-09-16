@@ -74,8 +74,46 @@
 	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
 	import { VideoAnswer } from "@/interfaces/VideoAnswer";
 	import { sortNamesAlphabetically } from "@/utils/utils";
+	import { DescriptionType } from "@/enums/DescriptionType";
 
-	@Component({ components: { ChatArea, VideoArea } })
+	@Component({
+		components: { ChatArea, VideoArea },
+		sockets: {
+			/* eslint-disable */
+			privateMessagePCSignaling({
+				desc,
+				from,
+				candidate,
+			}: {
+				desc: RTCSessionDescriptionInit;
+				from: string;
+				candidate: RTCIceCandidateInit;
+			}) {
+				if (SocketModule.username === from) return;
+
+				if (desc) {
+					if (desc.type === DescriptionType.OFFER) {
+						(this as PrivateChat).openChat(desc, from);
+					} else if (desc.type === DescriptionType.ANSWER) {
+						(this as PrivateChat).videoAnswer = {
+							...(this as PrivateChat).videoAnswer,
+							remoteDesc: desc,
+						};
+					} else {
+						console.error("Unsupported SDP type");
+					}
+				} else if (candidate) {
+					(this as PrivateChat).videoAnswer = {
+						...(this as PrivateChat).videoAnswer,
+						candidate,
+					};
+				} else {
+					(this as PrivateChat).videoCall = false;
+				}
+			},
+			/* eslint-disable */
+		},
+	})
 	export default class PrivateChat extends Vue {
 		@Prop() privateChat!: PrivateChatModel;
 
@@ -138,6 +176,16 @@
 			}
 		}
 
+		openChat(desc: RTCSessionDescriptionInit, from: string): void {
+			this.videoAnswer = {
+				...this.videoAnswer,
+				video: true,
+				remoteDesc: desc,
+				from,
+			};
+			this.videoCall = true;
+		}
+
 		closeChat(): void {
 			this.$socket.emit(WebSocketEvents.LEAVE_PRIVATE_ROOM, {
 				room: SocketModule.room,
@@ -169,7 +217,9 @@
 
 			isVideoCall
 				? Object.assign(this.videoAnswer, { video: !isVideoCall })
-				: this.sendPrivateMessage(`${SocketModule.username} has closed the video`);
+				: this.sendPrivateMessage(
+						`${SocketModule.username} has closed the video`
+				  );
 		}
 	}
 </script>
