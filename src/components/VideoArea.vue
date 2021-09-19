@@ -1,11 +1,14 @@
 <template>
 	<div class="video">
 		<div class="video__partner">
-			<video
-				src="https://ak.picdn.net/shutterstock/videos/5242448/preview/stock-footage-lion-in-the-wild.webm"
-				autoplay
-				loop
-			></video>
+			<Video
+				videoId="remoteVideo"
+				:displayControls="true"
+				:videoStream="remoteStream"
+				:pauseVideo="pauseVideo"
+				:pauseAudio="pauseAudio"
+				:muted="false"
+			/>
 		</div>
 		<video
 			id="localVideo"
@@ -24,8 +27,11 @@
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import { SocketModule } from "@/store/Socket";
 	import VideoConfig from "@/mixins/VideoConfig.vue";
+	import Video from "@/components/video/Video.vue";
 
-	@Component
+	@Component({
+		components: { Video },
+	})
 	export default class VideoArea extends mixins(VideoConfig) {
 		@Prop() privateRoom!: string;
 		@Prop() to!: string;
@@ -99,7 +105,7 @@
 		}
 
 		onAddStream(): void {
-            // TODO: Refactor to the new implementation
+			// TODO: Refactor to the new implementation
 			// @ts-ignore
 			this.pc.onaddstream = (event) => {
 				if (!this.remoteVideo.srcObject && event.stream) {
@@ -111,7 +117,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.video {
 		position: relative;
 	}
