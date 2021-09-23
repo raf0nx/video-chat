@@ -14,12 +14,7 @@
 			persistent
 			no-click-animation
 		>
-			<VideoArea
-				:privateRoom="privateRoom"
-				:to="privateChat.user"
-				:videoAnswer="videoAnswer"
-				@closeVideo="video(false)"
-			/>
+			<Video />
 		</v-dialog>
 		<v-card>
 			<v-card-actions class="justify-space-between py-4">
@@ -28,7 +23,7 @@
 					<v-icon
 						:disabled="!privateChat.messages.length"
 						class="mr-2"
-						@click="video(!videoCall)"
+						@click="videoCall = !videoCall"
 						>{{ videoCall ? "mdi-video-off" : "mdi-video" }}</v-icon
 					>
 					<v-icon @click="closeChat()">mdi-close</v-icon>
@@ -70,61 +65,18 @@
 	import { WebSocketEvents } from "@/enums/WebSocketEvents";
 	import { SocketModule } from "@/store/Socket";
 	import ChatArea from "@/components/ChatArea.vue";
-	import VideoArea from "@/components/VideoArea.vue";
+	import Video from "@/components/Video.vue";
 	import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
-	import { VideoAnswer } from "@/interfaces/VideoAnswer";
 	import { sortNamesAlphabetically } from "@/utils/utils";
-	import { DescriptionType } from "@/enums/DescriptionType";
 
 	@Component({
-		components: { ChatArea, VideoArea },
-		sockets: {
-			/* eslint-disable */
-			privateMessagePCSignaling({
-				desc,
-				from,
-				candidate,
-			}: {
-				desc: RTCSessionDescriptionInit;
-				from: string;
-				candidate: RTCIceCandidateInit;
-			}) {
-				if (SocketModule.username === from) return;
-
-				if (desc) {
-					if (desc.type === DescriptionType.OFFER) {
-						(this as PrivateChat).openChat(desc, from);
-					} else if (desc.type === DescriptionType.ANSWER) {
-						(this as PrivateChat).videoAnswer = {
-							...(this as PrivateChat).videoAnswer,
-							remoteDesc: desc,
-						};
-					} else {
-						console.error("Unsupported SDP type");
-					}
-				} else if (candidate) {
-					(this as PrivateChat).videoAnswer = {
-						...(this as PrivateChat).videoAnswer,
-						candidate,
-					};
-				} else {
-					(this as PrivateChat).videoCall = false;
-				}
-			},
-			/* eslint-disable */
-		},
+		components: { ChatArea, Video },
 	})
 	export default class PrivateChat extends Vue {
 		@Prop() privateChat!: PrivateChatModel;
 
 		privateMessage = "";
 		videoCall = false;
-		videoAnswer: VideoAnswer = {
-			video: false,
-			remoteDesc: "",
-			candidate: "",
-			close: false,
-		};
 
 		get privateRoom(): string {
 			return sortNamesAlphabetically(
@@ -176,16 +128,6 @@
 			}
 		}
 
-		openChat(desc: RTCSessionDescriptionInit, from: string): void {
-			this.videoAnswer = {
-				...this.videoAnswer,
-				video: true,
-				remoteDesc: desc,
-				from,
-			};
-			this.videoCall = true;
-		}
-
 		closeChat(): void {
 			this.$socket.emit(WebSocketEvents.LEAVE_PRIVATE_ROOM, {
 				room: SocketModule.room,
@@ -210,16 +152,6 @@
 			});
 
 			this.privateMessage = "";
-		}
-
-		video(isVideoCall: boolean): void {
-			this.videoCall = isVideoCall;
-
-			isVideoCall
-				? Object.assign(this.videoAnswer, { video: !isVideoCall })
-				: this.sendPrivateMessage(
-						`${SocketModule.username} has closed the video`
-				  );
 		}
 	}
 </script>
