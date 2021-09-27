@@ -43,7 +43,13 @@
         <v-divider></v-divider>
       </div>
       <div class="px-8 py-4">
-        <v-btn class="px-8 font-weight-bold" light large block>
+        <v-btn
+          @click="googleLogin()"
+          class="px-8 font-weight-bold"
+          light
+          large
+          block
+        >
           <v-icon class="mr-4" left>mdi-google</v-icon>
           Continue with google
         </v-btn>
@@ -97,6 +103,10 @@
       } catch (error) {
         console.error(error);
       }
+    }
+
+    googleLogin(): void {
+      window.location.href = "http://localhost:3000/auth/google";
     }
   }
 </script>
