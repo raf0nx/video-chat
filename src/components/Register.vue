@@ -8,26 +8,33 @@
       <v-card-subtitle class="pt-8 text-center"
         >Create account in VoChat app in order to use it!</v-card-subtitle
       >
-      <v-form class="pa-8">
+      <v-form class="pa-8" @submit.prevent="registerUser()">
         <v-text-field
+          v-model="userData.name"
           label="Name"
           outlined
           color="indigo lighten-1"
         ></v-text-field>
         <v-text-field
+          v-model="userData.email"
           label="Email"
           outlined
           color="indigo lighten-1"
+          type="email"
         ></v-text-field>
         <v-text-field
+          v-model="userData.password"
           label="Password"
           outlined
           color="indigo lighten-1"
+          type="password"
         ></v-text-field>
         <v-text-field
+          v-model="userData.passwordConfirm"
           label="Confirm password"
           outlined
           color="indigo lighten-1"
+          type="password"
         ></v-text-field>
         <v-btn
           type="submit"
@@ -57,9 +64,34 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import axios from "axios";
+
+  import { URL } from "@/utils/utils";
+  import { SocketModule } from "@/store/Socket";
 
   @Component
-  export default class Register extends Vue {}
+  export default class Register extends Vue {
+    userData = {
+      name: "",
+      email: "",
+      password: "",
+      passwordConfirm: "",
+    };
+
+    async registerUser() {
+      try {
+        const response = await axios.post(
+          `${URL}/auth/register`,
+          this.userData
+        );
+        const username = response.data.newUser.name;
+        SocketModule.joinRoom({ username, room: "GENERAL" });
+        this.$router.push({ name: "Chat" });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
 </script>
 
 <style>

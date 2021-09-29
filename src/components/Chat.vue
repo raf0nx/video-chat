@@ -226,7 +226,7 @@
           username: this.username,
         });
 
-        await SocketModule.leaveChat(this.username);
+        await SocketModule.leaveChat();
 
         this.$socket.close();
         this.$router.push({ name: "Home" });

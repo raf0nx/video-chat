@@ -1,7 +1,7 @@
-import { Status } from '@/enums/Status';
+import { Status } from "@/enums/Status";
 
 export interface User {
-	username: string;
-	status: Status;
-	privateChat: string;
+  username: string;
+  status: Status;
+  privateChat: string;
 }

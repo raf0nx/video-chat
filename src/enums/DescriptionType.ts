@@ -1,4 +1,4 @@
 export enum DescriptionType {
-    OFFER = 'offer',
-    ANSWER = 'answer',
+  OFFER = "offer",
+  ANSWER = "answer",
 }
