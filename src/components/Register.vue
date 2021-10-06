@@ -84,7 +84,7 @@
           `${URL}/auth/register`,
           this.userData
         );
-        const username = response.data.newUser.name;
+        const username = response.data.user.name;
         SocketModule.joinRoom({ username, room: "GENERAL" });
         this.$router.push({ name: "Chat" });
       } catch (err) {

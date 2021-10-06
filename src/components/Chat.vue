@@ -200,20 +200,6 @@
         });
         this.username = response.data.user.name;
         this.room = "GENERAL";
-        SocketModule.setRooms([
-          {
-            id: 1,
-            name: "GENERAL",
-          },
-          {
-            id: 2,
-            name: "OFFICE",
-          },
-          {
-            id: 3,
-            name: "EXPERIMENTAL",
-          },
-        ]);
       }
 
       this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);

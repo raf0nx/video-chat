@@ -44,7 +44,7 @@
       </div>
       <div class="px-8 py-4">
         <v-btn
-          @click="googleLogin()"
+          @click="loginToGoogle()"
           class="px-8 font-weight-bold"
           light
           large
@@ -75,21 +75,15 @@
 
   import { URL } from "@/utils/utils";
   import { SocketModule } from "@/store/Socket";
+  import { Room } from "@/interfaces/Room";
 
   @Component
   export default class Home extends Vue {
     username = "";
     room = "";
-    rooms = [];
 
-    async created(): Promise<void> {
-      try {
-        const rooms = await axios.get(`${URL}/rooms`);
-        this.rooms = rooms.data;
-        SocketModule.setRooms(this.rooms as []);
-      } catch (error) {
-        console.error(error);
-      }
+    get rooms(): Room[] {
+      return SocketModule.rooms;
     }
 
     async loginUser(): Promise<void> {
@@ -98,15 +92,42 @@
           username: this.username,
           room: this.room,
         });
-        SocketModule.joinRoom(response.data);
+        SocketModule.joinRoom({ ...response.data, room: "GENERAL" });
         this.$router.push({ name: "Chat" });
       } catch (error) {
         console.error(error);
       }
     }
 
-    googleLogin(): void {
-      window.location.href = "http://localhost:3000/auth/google";
+    async fetchUser(): Promise<void> {
+      try {
+        const response = await axios.get(`${URL}/auth/user`, {
+          withCredentials: true,
+        });
+        sessionStorage.setItem("user", JSON.stringify(response.data));
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    loginToGoogle(): void {
+      let timer: any = null;
+      const newWindow = window.open(
+        `${URL}/auth/google/login`,
+        "_blank",
+        "width=500,height=600"
+      );
+
+      if (newWindow) {
+        timer = setInterval(() => {
+          if (newWindow.closed) {
+            this.fetchUser();
+            if (timer) {
+              clearInterval(timer);
+            }
+          }
+        }, 500);
+      }
     }
   }
 </script>
