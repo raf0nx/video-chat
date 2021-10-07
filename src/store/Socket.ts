@@ -5,40 +5,29 @@ import {
   Action,
   Mutation,
 } from "vuex-module-decorators";
-import axios from "axios";
 
 import store from "@/store/store";
 import { Status } from "@/enums/Status";
-import { URL } from "@/utils/utils";
 import { Room } from "@/interfaces/Room";
 
 export interface SocketState {
   room: string;
-  username: string;
   status: Status;
   rooms: Room[];
 }
 
 @Module({ dynamic: true, store, name: "socket" })
 class Socket extends VuexModule implements SocketState {
-  room = "";
-  username = "";
   status = Status.AVAILABLE;
   rooms: Room[] = [
     { id: 1, name: "GENERAL" },
     { id: 2, name: "OFFICE" },
     { id: 3, name: "EXPERIMENTAL" },
   ];
+  room = this.rooms[0].name;
 
   @Mutation
-  private JOIN_ROOM({
-    username,
-    room,
-  }: {
-    username: string;
-    room: string;
-  }): void {
-    this.username = username;
+  private JOIN_ROOM(room: string): void {
     this.room = room;
   }
 
@@ -50,7 +39,6 @@ class Socket extends VuexModule implements SocketState {
   @Mutation
   private LEAVE_CHAT() {
     this.room = "";
-    this.username = "";
   }
 
   @Mutation
@@ -73,8 +61,8 @@ class Socket extends VuexModule implements SocketState {
   }
 
   @Action
-  joinRoom(payload: { username: string; room: string }): void {
-    this.JOIN_ROOM(payload);
+  joinRoom(room: string): void {
+    this.JOIN_ROOM(room);
   }
 
   @Action
@@ -84,12 +72,7 @@ class Socket extends VuexModule implements SocketState {
 
   @Action
   async leaveChat(): Promise<void> {
-    try {
-      await axios.post(`${URL}/auth/logout`);
-      this.LEAVE_CHAT();
-    } catch (error) {
-      console.error(error);
-    }
+    this.LEAVE_CHAT();
   }
 
   @Action

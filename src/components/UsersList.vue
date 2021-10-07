@@ -32,8 +32,8 @@
 <script lang="ts">
   import { Status } from "@/enums/Status";
   import { User } from "@/interfaces/User";
-  import { SocketModule } from "@/store/Socket";
   import { Vue, Component, Prop } from "vue-property-decorator";
+	import { UserModule } from "@/store/User";
 
   @Component
   export default class UsersList extends Vue {
@@ -41,7 +41,7 @@
     @Prop() isInPrivateChat!: boolean;
 
     get currentUsername(): string {
-      return SocketModule.username;
+      return UserModule.username!;
     }
 
     getStatusColor(user: User): string {

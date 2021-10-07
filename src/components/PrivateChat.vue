@@ -68,6 +68,7 @@
   import Video from "@/components/Video.vue";
   import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
   import { sortNamesAlphabetically } from "@/utils/utils";
+	import { UserModule } from "@/store/User";
 
   @Component({
     components: { ChatArea, Video },
@@ -80,7 +81,7 @@
 
     get privateRoom(): string {
       return sortNamesAlphabetically(
-        SocketModule.username,
+        UserModule.username!,
         this.privateChat.user
       );
     }
@@ -101,26 +102,26 @@
       oldVal: PrivateChatModel
     ): void {
       if (openChat && openChat !== oldVal.openChat) {
-        if (this.privateChat.room !== SocketModule.username) {
+        if (this.privateChat.room !== UserModule.username) {
           this.$socket.emit(WebSocketEvents.JOIN_PRIVATE_ROOM, {
             ...this.$store.state,
             to: this.privateChat.user,
-            from: SocketModule.username,
+            from: UserModule.username,
             privateRoom: sortNamesAlphabetically(
               this.privateChat.user,
-              SocketModule.username
+              UserModule.username!
             ),
           });
         }
 
-        if (this.privateChat.room === SocketModule.username) {
+        if (this.privateChat.room === UserModule.username) {
           this.$socket.emit(WebSocketEvents.JOIN_PRIVATE_ROOM, {
             ...this.$store.state,
-            to: SocketModule.username,
-            from: SocketModule.username,
+            to: UserModule.username,
+            from: UserModule.username,
             privateRoom: sortNamesAlphabetically(
               this.privateChat.user,
-              SocketModule.username
+              UserModule.username
             ),
             joinConfirm: true,
           });
@@ -132,7 +133,7 @@
       this.$socket.emit(WebSocketEvents.LEAVE_PRIVATE_ROOM, {
         room: SocketModule.room,
         to: this.privateChat.room,
-        from: SocketModule.username,
+        from: UserModule.username,
         privateRoom: this.privateRoom,
       });
 
@@ -147,7 +148,7 @@
       this.$socket.emit(WebSocketEvents.PRIVATE_MESSAGE, {
         privateMessage: message,
         to: this.privateChat.user,
-        from: SocketModule.username,
+        from: UserModule.username,
         privateRoom: this.privateRoom,
       });
 

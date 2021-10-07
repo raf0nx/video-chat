@@ -83,12 +83,13 @@
   import { User } from "@/interfaces/User";
   import { Room } from "@/interfaces/Room";
   import { URL } from "@/utils/utils";
+  import { UserModule } from "@/store/User";
 
   @Component({
     components: { UsersList, ChatArea, MessageArea, PrivateChat },
     sockets: {
       newUser({ users, username }: { users: User[]; username: string }): void {
-        const me = SocketModule.username === username;
+        const me = UserModule.username === username;
 
         if (users.length > (this as Chat).users.length) {
           (this as Chat).messages.push({
@@ -111,7 +112,7 @@
         message: string;
         username: string;
       }): void {
-        const me = SocketModule.username === username;
+        const me = UserModule.username === username;
         const msg = me
           ? { join: false, message }
           : { join: false, message, username };
@@ -123,7 +124,7 @@
       },
       privateChat({ to, from }: { to: string; from: string }): void {
         if (
-          SocketModule.username !== to ||
+          UserModule.username !== to ||
           (this as Chat).privateChat.openChat
         ) {
           return;
@@ -166,7 +167,7 @@
         (this as Chat).privateChat.messages.push({
           message: privateMessage,
           join: false,
-          me: SocketModule.username !== to,
+          me: UserModule.username !== to,
         });
       },
     },
@@ -174,7 +175,7 @@
   export default class Chat extends Vue {
     messages: Message[] = [];
     room = SocketModule.room;
-    username = SocketModule.username;
+    username = UserModule.username;
     users: User[] = [];
     privateChat: PrivateChatModel = {
       openChat: false,
@@ -189,35 +190,23 @@
     }
 
     async beforeCreate(): Promise<void> {
-      const urlParams = new URLSearchParams(window.location.search);
-      const userId = urlParams.get("userId");
-
-      if (userId) {
-        const response = await axios.get(`${URL}/auth/users/${userId}`);
-        SocketModule.joinRoom({
-          username: response.data.user.name,
-          room: "GENERAL",
-        });
-        this.username = response.data.user.name;
-        this.room = "GENERAL";
-      }
-
       this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
     }
 
     async logout(): Promise<void> {
-      try {
-        this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
-          room: this.room,
-          username: this.username,
-        });
-
+			
+			try {
+				await axios.post(`${URL}/auth/logout`, null, { withCredentials: true });
+				this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
+					room: this.room,
+					username: this.username,
+				});
         await SocketModule.leaveChat();
+        UserModule.setAuthUser(null);
 
-        this.$socket.close();
         this.$router.push({ name: "Home" });
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        console.error(err);
       }
     }
 

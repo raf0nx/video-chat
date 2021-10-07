@@ -2,9 +2,9 @@
   import { Vue, Component } from "vue-property-decorator";
 
   import { ICEServers } from "@/utils/ICEServers";
-  import { SocketModule } from "@/store/Socket";
   import { DescriptionType } from "@/enums/DescriptionType";
   import { WebSocketEvents } from "@/enums/WebSocketEvents";
+	import { UserModule } from "@/store/User";
 
   @Component
   export default class VideoConfig extends Vue {
@@ -35,7 +35,7 @@
     username = "";
 
     created(): void {
-      this.username = SocketModule.username;
+      this.username = UserModule.username!;
     }
 
     beforeDestroy(): void {
@@ -76,7 +76,7 @@
         await pc.setRemoteDescription(remoteDescription);
       } catch (error) {
         console.error(
-          `Error in setting the remote description for ${SocketModule.username}. Error: ${error}`
+          `Error in setting the remote description for ${UserModule.username}. Error: ${error}`
         );
       }
     }

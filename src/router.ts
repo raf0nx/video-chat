@@ -6,6 +6,7 @@ import Chat from "@/components/Chat.vue";
 import Register from "@/components/Register.vue";
 import Error from "@/components/Error.vue";
 import SuccessPage from "@/components/SuccessPage.vue";
+import { UserModule } from "./store/User";
 
 Vue.use(VueRouter);
 
@@ -42,15 +43,18 @@ const router = new VueRouter({
   mode: "history",
   routes,
   linkActiveClass: "font-weight-bold",
-  scrollBehavior(_, __, savedPosition) {
+  scrollBehavior(_, _2, savedPosition) {
     return savedPosition ?? { x: 0, y: 0 };
   },
 });
 
-router.beforeEach((to, _, next) => {
-  const authUser = sessionStorage.getItem("user");
+router.beforeEach(async (to, _, next) => {
+  const authUser = UserModule.authUser;
+
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    authUser ? next() : next({ name: "Home" });
+    authUser || (await UserModule.getAuthUser())
+      ? next()
+      : next({ name: "Home" });
   } else {
     authUser && to.name === "Home" ? next({ name: "Chat" }) : next();
   }

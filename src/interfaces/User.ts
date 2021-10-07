@@ -1,7 +1,13 @@
 import { Status } from "@/enums/Status";
 
 export interface User {
-  username: string;
-  status: Status;
-  privateChat: string;
+	id: number;
+	name: string;
+	email: string;
+	picture?: string;
+	googleId?: string;
+	createdAt: string;
+	updatedAt: string;
+	status?: Status;
+	privateChat?: string;
 }
