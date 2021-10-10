@@ -10,27 +10,27 @@
       >
       <v-form class="pa-8" @submit.prevent="registerUser()">
         <v-text-field
-          v-model="userData.name"
+          v-model="registerData.name"
           label="Name"
           outlined
           color="indigo lighten-1"
         ></v-text-field>
         <v-text-field
-          v-model="userData.email"
+          v-model="registerData.email"
           label="Email"
           outlined
           color="indigo lighten-1"
           type="email"
         ></v-text-field>
         <v-text-field
-          v-model="userData.password"
+          v-model="registerData.password"
           label="Password"
           outlined
           color="indigo lighten-1"
           type="password"
         ></v-text-field>
         <v-text-field
-          v-model="userData.passwordConfirm"
+          v-model="registerData.passwordConfirm"
           label="Confirm password"
           outlined
           color="indigo lighten-1"
@@ -64,13 +64,13 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
-  import axios from "axios";
 
-  import { URL } from "@/utils/utils";
+  import { RegisterData } from "@/interfaces/RegisterData";
+  import { AuthService } from "@/services/AuthService";
 
   @Component
   export default class Register extends Vue {
-    userData = {
+    registerData: RegisterData = {
       name: "",
       email: "",
       password: "",
@@ -79,7 +79,7 @@
 
     async registerUser(): Promise<void> {
       try {
-        await axios.post(`${URL}/auth/register`, this.userData);
+        await AuthService.register(this.registerData);
         this.$router.push({ name: "Home" });
       } catch (err) {
         console.error(err);

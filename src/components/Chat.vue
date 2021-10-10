@@ -69,7 +69,6 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
-  import axios from "axios";
 
   import { SocketModule } from "@/store/Socket";
   import { WebSocketEvents } from "@/enums/WebSocketEvents";
@@ -82,8 +81,8 @@
   import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
   import { User } from "@/interfaces/User";
   import { Room } from "@/interfaces/Room";
-  import { URL } from "@/utils/utils";
   import { UserModule } from "@/store/User";
+  import { AuthService } from "@/services/AuthService";
 
   @Component({
     components: { UsersList, ChatArea, MessageArea, PrivateChat },
@@ -123,10 +122,7 @@
         (this as Chat).users = [...users];
       },
       privateChat({ to, from }: { to: string; from: string }): void {
-        if (
-          UserModule.username !== to ||
-          (this as Chat).privateChat.openChat
-        ) {
+        if (UserModule.username !== to || (this as Chat).privateChat.openChat) {
           return;
         }
 
@@ -194,13 +190,12 @@
     }
 
     async logout(): Promise<void> {
-			
-			try {
-				await axios.post(`${URL}/auth/logout`, null, { withCredentials: true });
-				this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
-					room: this.room,
-					username: this.username,
-				});
+      try {
+        await AuthService.logout();
+        this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
+          room: this.room,
+          username: this.username,
+        });
         await SocketModule.leaveChat();
         UserModule.setAuthUser(null);
 
