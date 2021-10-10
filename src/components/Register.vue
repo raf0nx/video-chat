@@ -67,7 +67,6 @@
   import axios from "axios";
 
   import { URL } from "@/utils/utils";
-  import { SocketModule } from "@/store/Socket";
 
   @Component
   export default class Register extends Vue {
@@ -78,15 +77,10 @@
       passwordConfirm: "",
     };
 
-    async registerUser() {
+    async registerUser(): Promise<void> {
       try {
-        const response = await axios.post(
-          `${URL}/auth/register`,
-          this.userData
-        );
-        const username = response.data.user.name;
-        SocketModule.joinRoom({ username, room: "GENERAL" });
-        this.$router.push({ name: "Chat" });
+        await axios.post(`${URL}/auth/register`, this.userData);
+        this.$router.push({ name: "Home" });
       } catch (err) {
         console.error(err);
       }
