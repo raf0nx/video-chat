@@ -70,7 +70,7 @@
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
 
-  import { SocketModule } from "@/store/Socket";
+  import { SocketModule } from "@/store/modules/Socket";
   import { WebSocketEvents } from "@/enums/WebSocketEvents";
   import UsersList from "@/components/UsersList.vue";
   import ChatArea from "@/components/ChatArea.vue";
@@ -81,8 +81,9 @@
   import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
   import { User } from "@/interfaces/User";
   import { Room } from "@/interfaces/Room";
-  import { UserModule } from "@/store/User";
+  import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
+  import { StatusColors } from "@/enums/StatusColors";
 
   @Component({
     components: { UsersList, ChatArea, MessageArea, PrivateChat },
@@ -206,15 +207,15 @@
     }
 
     getMyStatusColor(): string {
-      switch (SocketModule.status) {
+      switch (UserModule.status) {
         case Status.AVAILABLE:
-          return "green";
+          return StatusColors.GREEN;
         case Status.AWAY:
-          return "orange";
+          return StatusColors.ORANGE;
         case Status.UNAVAILABLE:
-          return "red";
+          return StatusColors.RED;
         default:
-          return "white";
+          return StatusColors.WHITE;
       }
     }
 
@@ -241,7 +242,7 @@
     }
 
     changeStatus(): void {
-      SocketModule.changeStatus();
+      UserModule.changeStatus();
       this.$socket.emit(WebSocketEvents.CHANGE_STATUS, this.$store.state);
     }
 

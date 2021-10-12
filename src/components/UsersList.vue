@@ -33,7 +33,7 @@
   import { Status } from "@/enums/Status";
   import { User } from "@/interfaces/User";
   import { Vue, Component, Prop } from "vue-property-decorator";
-	import { UserModule } from "@/store/User";
+	import { UserModule } from "@/store/modules/User";
 
   @Component
   export default class UsersList extends Vue {

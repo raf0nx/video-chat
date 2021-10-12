@@ -1,7 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { SocketState } from "./Socket";
-import { VideoState } from "./Video";
+import { SocketState } from "./modules/Socket";
+import { VideoState } from "./modules/Video";
 
 Vue.use(Vuex);
 

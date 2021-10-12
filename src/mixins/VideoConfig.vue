@@ -4,7 +4,7 @@
   import { ICEServers } from "@/utils/ICEServers";
   import { DescriptionType } from "@/enums/DescriptionType";
   import { WebSocketEvents } from "@/enums/WebSocketEvents";
-	import { UserModule } from "@/store/User";
+	import { UserModule } from "@/store/modules/User";
 
   @Component
   export default class VideoConfig extends Vue {

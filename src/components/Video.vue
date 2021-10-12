@@ -31,7 +31,7 @@
   import firebase from "firebase/compat/app";
   import "firebase/compat/firestore";
 
-  import { VideoModule } from "@/store/Video";
+  import { VideoModule } from "@/store/modules/Video";
 
   @Component
   export default class Video extends Vue {

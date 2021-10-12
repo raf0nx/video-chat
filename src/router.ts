@@ -6,7 +6,7 @@ import Chat from "@/components/Chat.vue";
 import Register from "@/components/Register.vue";
 import Error from "@/components/Error.vue";
 import SuccessPage from "@/components/SuccessPage.vue";
-import { UserModule } from "./store/User";
+import { UserModule } from "./store/modules/User";
 
 Vue.use(VueRouter);
 
@@ -52,7 +52,10 @@ const router = new VueRouter({
 const BAD_DESTINY_ROUTES = ["Home", "Register"];
 
 router.beforeEach(async (to, _, next) => {
-  const authUser = UserModule.authUser || (await UserModule.getAuthUser());
+  const authUser =
+    UserModule.authUser || to.matched.some(record => record.meta.requiresAuth)
+      ? await UserModule.getAuthUser()
+      : null;
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     authUser ? next() : next({ name: "Home" });

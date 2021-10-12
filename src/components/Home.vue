@@ -72,8 +72,8 @@
   import { Vue, Component } from "vue-property-decorator";
 
   import { URL } from "@/utils/utils";
-  import { SocketModule } from "@/store/Socket";
-  import { UserModule } from "@/store/User";
+  import { SocketModule } from "@/store/modules/Socket";
+  import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
 
   @Component

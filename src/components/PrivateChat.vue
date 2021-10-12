@@ -63,12 +63,12 @@
   import { Vue, Component, Prop, Watch } from "vue-property-decorator";
 
   import { WebSocketEvents } from "@/enums/WebSocketEvents";
-  import { SocketModule } from "@/store/Socket";
+  import { SocketModule } from "@/store/modules/Socket";
   import ChatArea from "@/components/ChatArea.vue";
   import Video from "@/components/Video.vue";
   import { PrivateChat as PrivateChatModel } from "@/interfaces/PrivateChat";
   import { sortNamesAlphabetically } from "@/utils/utils";
-	import { UserModule } from "@/store/User";
+	import { UserModule } from "@/store/modules/User";
 
   @Component({
     components: { ChatArea, Video },
