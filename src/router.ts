@@ -48,15 +48,18 @@ const router = new VueRouter({
   },
 });
 
+// Routes that authenticated user cannot reach
+const BAD_DESTINY_ROUTES = ["Home", "Register"];
+
 router.beforeEach(async (to, _, next) => {
-  const authUser = UserModule.authUser;
+  const authUser = UserModule.authUser || (await UserModule.getAuthUser());
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    authUser || (await UserModule.getAuthUser())
-      ? next()
-      : next({ name: "Home" });
+    authUser ? next() : next({ name: "Home" });
   } else {
-    authUser && to.name === "Home" ? next({ name: "Chat" }) : next();
+    authUser && BAD_DESTINY_ROUTES.includes(to.name as string)
+      ? next({ name: "Chat" })
+      : next();
   }
 });
 

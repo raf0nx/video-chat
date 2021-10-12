@@ -85,11 +85,11 @@
 
     async loginUser(): Promise<void> {
       try {
-        const response = await AuthService.login(
+        const { data: authUser } = await AuthService.login(
           this.loginData.email,
           this.loginData.password
         );
-        UserModule.setAuthUser(response.data);
+        UserModule.setAuthUser(authUser);
         SocketModule.joinRoom(SocketModule.room);
         this.$router.push({ name: "Chat" });
       } catch (error) {
@@ -99,8 +99,8 @@
 
     async fetchUser(): Promise<void> {
       try {
-        const response = await AuthService.getAuthUser();
-        UserModule.setAuthUser(response.data);
+        const { data: authUser } = await AuthService.getAuthUser();
+        UserModule.setAuthUser(authUser);
         SocketModule.joinRoom(SocketModule.room);
         this.$router.push({ name: "Chat" });
       } catch (err) {
