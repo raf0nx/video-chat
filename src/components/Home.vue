@@ -90,7 +90,7 @@
           this.loginData.password
         );
         UserModule.setAuthUser(authUser);
-        SocketModule.joinRoom(SocketModule.room);
+        SocketModule.joinRoom(SocketModule.rooms[0].name);
         this.$router.push({ name: "Chat" });
       } catch (error) {
         console.error(error);
@@ -101,7 +101,7 @@
       try {
         const { data: authUser } = await AuthService.getAuthUser();
         UserModule.setAuthUser(authUser);
-        SocketModule.joinRoom(SocketModule.room);
+        SocketModule.joinRoom(SocketModule.rooms[0].name);
         this.$router.push({ name: "Chat" });
       } catch (err) {
         console.error(err);

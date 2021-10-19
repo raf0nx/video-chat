@@ -197,7 +197,7 @@
           room: this.room,
           username: this.username,
         });
-        await SocketModule.leaveChat();
+        await SocketModule.joinRoom("");
         UserModule.setAuthUser(null);
 
         this.$router.push({ name: "Home" });
@@ -219,9 +219,9 @@
       }
     }
 
-    changeRoomHandler(roomSelected: string): void {
+    changeRoomHandler(selectedRoom: string): void {
       this.$socket.emit(WebSocketEvents.LEAVE_ROOM, this.$store.state);
-      SocketModule.changeRoom(roomSelected);
+      SocketModule.joinRoom(selectedRoom);
       this.messages.length = 0;
       this.$socket.emit(WebSocketEvents.JOIN_ROOM, this.$store.state);
     }
