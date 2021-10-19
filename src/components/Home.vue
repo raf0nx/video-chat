@@ -31,7 +31,7 @@
           color="indigo lighten-1"
           block
         >
-          Continue
+          Sign in
           <v-icon right>mdi-chevron-right</v-icon>
           <v-icon class="ml-n2" right>mdi-chevron-right</v-icon>
         </v-btn>
@@ -75,6 +75,7 @@
   import { SocketModule } from "@/store/modules/Socket";
   import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
+import { UtilsModule } from "@/store/modules/Utils";
 
   @Component
   export default class Home extends Vue {
@@ -84,6 +85,7 @@
     };
 
     async loginUser(): Promise<void> {
+      UtilsModule.setLoader(true);
       try {
         const { data: authUser } = await AuthService.login(
           this.loginData.email,
@@ -95,9 +97,11 @@
       } catch (error) {
         console.error(error);
       }
+      UtilsModule.setLoader(false);
     }
 
     async fetchUser(): Promise<void> {
+      UtilsModule.setLoader(true);
       try {
         const { data: authUser } = await AuthService.getAuthUser();
         UserModule.setAuthUser(authUser);
@@ -106,6 +110,7 @@
       } catch (err) {
         console.error(err);
       }
+      UtilsModule.setLoader(false);
     }
 
     loginToGoogle(): void {

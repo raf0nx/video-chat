@@ -21,7 +21,7 @@ class Socket extends VuexModule implements SocketState {
     { id: 2, name: "OFFICE" },
     { id: 3, name: "EXPERIMENTAL" },
   ];
-  room = "";
+  room = this.rooms[0].name;
 
   @Mutation
   private JOIN_ROOM(room: string): void {

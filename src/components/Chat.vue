@@ -84,6 +84,7 @@
   import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
   import { StatusColors } from "@/enums/StatusColors";
+import { UtilsModule } from "@/store/modules/Utils";
 
   @Component({
     components: { UsersList, ChatArea, MessageArea, PrivateChat },
@@ -191,6 +192,7 @@
     }
 
     async logout(): Promise<void> {
+      UtilsModule.setLoader(true);
       try {
         await AuthService.logout();
         this.$socket.emit(WebSocketEvents.LEAVE_CHAT, {
@@ -204,6 +206,7 @@
       } catch (err) {
         console.error(err);
       }
+      UtilsModule.setLoader(false);
     }
 
     getMyStatusColor(): string {

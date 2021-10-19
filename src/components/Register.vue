@@ -67,6 +67,7 @@
 
   import { RegisterData } from "@/interfaces/RegisterData";
   import { AuthService } from "@/services/AuthService";
+import { UtilsModule } from "@/store/modules/Utils";
 
   @Component
   export default class Register extends Vue {
@@ -78,12 +79,14 @@
     };
 
     async registerUser(): Promise<void> {
+      UtilsModule.setLoader(true);
       try {
         await AuthService.register(this.registerData);
         this.$router.push({ name: "Home" });
       } catch (err) {
         console.error(err);
       }
+      UtilsModule.setLoader(false);
     }
   }
 </script>

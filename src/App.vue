@@ -4,15 +4,23 @@
       <transition name="zoom" mode="out-in" appear>
         <router-view />
       </transition>
+      <v-overlay :value="showLoader">
+        <v-progress-circular indeterminate size="64" width="8"></v-progress-circular>
+      </v-overlay>
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
   import { Component, Vue } from "vue-property-decorator";
+  import { UtilsModule } from "./store/modules/Utils";
 
   @Component
-  export default class App extends Vue {}
+  export default class App extends Vue {
+    get showLoader(): boolean {
+      return UtilsModule.showLoader;
+    }
+  }
 </script>
 
 <style>
