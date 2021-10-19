@@ -15,22 +15,24 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "Home",
     component: Home,
-  },
-  {
-    path: "/auth/success",
-    name: "AuthSuccess",
-    component: SuccessPage,
+    meta: { preventAuthUser: true },
   },
   {
     path: "/register",
     name: "Register",
     component: Register,
+    meta: { preventAuthUser: true },
   },
   {
     path: "/chat",
     name: "Chat",
     component: Chat,
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/auth/success",
+    name: "AuthSuccess",
+    component: SuccessPage,
   },
   {
     path: "/error",
@@ -48,21 +50,15 @@ const router = new VueRouter({
   },
 });
 
-// Routes that authenticated user cannot reach
-const BAD_DESTINY_ROUTES = ["Home", "Register"];
-
 router.beforeEach(async (to, _, next) => {
-  const authUser =
-    UserModule.authUser || to.matched.some(record => record.meta.requiresAuth)
-      ? await UserModule.getAuthUser()
-      : null;
+  const authUser = UserModule.authUser || (await UserModule.getAuthUser());
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     authUser ? next() : next({ name: "Home" });
+  } else if (to.matched.some(record => record.meta.preventAuthUser)) {
+    authUser ? next({ name: "Chat" }) : next();
   } else {
-    authUser && BAD_DESTINY_ROUTES.includes(to.name as string)
-      ? next({ name: "Chat" })
-      : next();
+    next();
   }
 });
 
