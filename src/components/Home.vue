@@ -32,8 +32,10 @@
           block
         >
           Sign in
-          <v-icon right>mdi-chevron-right</v-icon>
-          <v-icon class="ml-n2" right>mdi-chevron-right</v-icon>
+          <v-icon class="align-self-start" right>mdi-chevron-right</v-icon>
+          <v-icon class="ml-n2 align-self-start" right
+            >mdi-chevron-right</v-icon
+          >
         </v-btn>
       </v-form>
       <div class="d-flex align-center px-8 py-4">
@@ -49,7 +51,7 @@
           large
           block
         >
-          <v-icon class="mr-4" left>mdi-google</v-icon>
+          <v-icon class="mr-4 align-self-start" left>mdi-google</v-icon>
           Continue with google
         </v-btn>
       </div>
@@ -75,7 +77,7 @@
   import { SocketModule } from "@/store/modules/Socket";
   import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
-import { UtilsModule } from "@/store/modules/Utils";
+  import { UtilsModule } from "@/store/modules/Utils";
 
   @Component
   export default class Home extends Vue {
@@ -87,10 +89,7 @@ import { UtilsModule } from "@/store/modules/Utils";
     async loginUser(): Promise<void> {
       UtilsModule.setLoader(true);
       try {
-        const { data: authUser } = await AuthService.login(
-          this.loginData.email,
-          this.loginData.password
-        );
+        const { data: authUser } = await AuthService.login(this.loginData);
         UserModule.setAuthUser(authUser);
         SocketModule.joinRoom(SocketModule.rooms[0].name);
         this.$router.push({ name: "Chat" });

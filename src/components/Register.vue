@@ -44,7 +44,7 @@
           block
         >
           Sing Up
-          <v-icon right>mdi-account-plus</v-icon>
+          <v-icon class="align-self-start" right>mdi-account-plus</v-icon>
         </v-btn>
       </v-form>
       <v-card-text class="d-flex justify-center align-center"
@@ -67,7 +67,7 @@
 
   import { RegisterData } from "@/interfaces/RegisterData";
   import { AuthService } from "@/services/AuthService";
-import { UtilsModule } from "@/store/modules/Utils";
+  import { UtilsModule } from "@/store/modules/Utils";
 
   @Component
   export default class Register extends Vue {

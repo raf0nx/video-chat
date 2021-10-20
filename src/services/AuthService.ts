@@ -7,16 +7,30 @@ import { User } from "@/interfaces/User";
 class AuthServiceClass {
   private readonly AUTH_ENDPOINT_PREFIX = `${URL}/auth`;
 
-  login(email: string, password: string): Promise<AxiosResponse<User>> {
+  login({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }): Promise<AxiosResponse<User>> {
     return axios.post(`${this.AUTH_ENDPOINT_PREFIX}/login`, {
       email,
       password,
     });
   }
 
-  register(registerData: RegisterData): Promise<AxiosResponse<void>> {
+  register({
+    name,
+    email,
+    password,
+    passwordConfirm,
+  }: RegisterData): Promise<AxiosResponse<void>> {
     return axios.post(`${this.AUTH_ENDPOINT_PREFIX}/register`, {
-      registerData,
+      name,
+      email,
+      password,
+      passwordConfirm,
     });
   }
 
