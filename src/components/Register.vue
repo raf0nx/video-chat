@@ -8,45 +8,78 @@
       <v-card-subtitle class="pt-8 text-center"
         >Create account in VoChat app in order to use it!</v-card-subtitle
       >
-      <v-form class="pa-8" @submit.prevent="registerUser()">
-        <v-text-field
-          v-model="registerData.name"
-          label="Name"
-          outlined
-          color="indigo lighten-1"
-        ></v-text-field>
-        <v-text-field
-          v-model="registerData.email"
-          label="Email"
-          outlined
-          color="indigo lighten-1"
-          type="email"
-        ></v-text-field>
-        <v-text-field
-          v-model="registerData.password"
-          label="Password"
-          outlined
-          color="indigo lighten-1"
-          type="password"
-        ></v-text-field>
-        <v-text-field
-          v-model="registerData.passwordConfirm"
-          label="Confirm password"
-          outlined
-          color="indigo lighten-1"
-          type="password"
-        ></v-text-field>
-        <v-btn
-          type="submit"
-          class="font-weight-bold"
-          large
-          color="indigo lighten-1"
-          block
-        >
-          Sing Up
-          <v-icon class="align-self-start" right>mdi-account-plus</v-icon>
-        </v-btn>
-      </v-form>
+      <ValidationObserver ref="form" v-slot="{ passes, invalid }">
+        <v-form class="pa-8" @submit.prevent="passes(registerUser)">
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="name"
+            rules="required|alpha_num|min:3|max:255"
+          >
+            <v-text-field
+              v-model="registerData.name"
+              label="Name"
+              outlined
+              color="indigo lighten-1"
+              :error-messages="errors"
+            ></v-text-field>
+          </ValidationProvider>
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="email"
+            rules="required|email"
+          >
+            <v-text-field
+              v-model="registerData.email"
+              label="Email"
+              outlined
+              color="indigo lighten-1"
+              :error-messages="errors"
+              type="email"
+            ></v-text-field>
+          </ValidationProvider>
+          <ValidationObserver>
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="password"
+              rules="required|min:8|max:255|uppercase|number|special_char"
+            >
+              <v-text-field
+                v-model="registerData.password"
+                label="Password"
+                outlined
+                color="indigo lighten-1"
+                :error-messages="errors"
+                type="password"
+              ></v-text-field>
+            </ValidationProvider>
+            <ValidationProvider
+              v-slot="{ errors }"
+              name="passwordConfirm"
+              rules="required|confirmed:password"
+            >
+              <v-text-field
+                v-model="registerData.passwordConfirm"
+                label="Confirm password"
+                outlined
+                color="indigo lighten-1"
+                :error-messages="errors"
+                type="password"
+              ></v-text-field>
+            </ValidationProvider>
+          </ValidationObserver>
+          <v-btn
+            type="submit"
+            class="font-weight-bold"
+            large
+            color="indigo lighten-1"
+            block
+            :disabled="invalid"
+          >
+            Sing Up
+            <v-icon class="align-self-start" right>mdi-account-plus</v-icon>
+          </v-btn>
+        </v-form>
+      </ValidationObserver>
       <v-card-text class="d-flex justify-center align-center"
         >Already have an account?<v-btn
           :to="{ name: 'Home' }"
@@ -64,12 +97,13 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import { ValidationProvider, ValidationObserver } from "vee-validate";
 
   import { RegisterData } from "@/interfaces/RegisterData";
   import { AuthService } from "@/services/AuthService";
   import { UtilsModule } from "@/store/modules/Utils";
 
-  @Component
+  @Component({ components: { ValidationProvider, ValidationObserver } })
   export default class Register extends Vue {
     registerData: RegisterData = {
       name: "",
@@ -78,13 +112,25 @@
       passwordConfirm: "",
     };
 
+    $refs!: {
+      form: InstanceType<typeof ValidationObserver>;
+    };
+
     async registerUser(): Promise<void> {
       UtilsModule.setLoader(true);
       try {
         await AuthService.register(this.registerData);
         this.$router.push({ name: "Home" });
       } catch (err) {
-        console.error(err);
+        // TODO: Implement error response type interface
+        // @ts-ignore
+        const errors = err.response.data.errors;
+        this.$refs.form.setErrors({
+          name: errors.name?.msg,
+          email: errors.email?.msg,
+          password: errors.password?.msg,
+          passwordConfirm: errors.passwordConfirm?.msg,
+        });
       }
       UtilsModule.setLoader(false);
     }

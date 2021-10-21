@@ -8,6 +8,7 @@ import vuetify from "./plugins/vuetify";
 import router from "@/router";
 import store from "@/store/store";
 import { URL } from "@/utils/utils";
+import "@/utils/validation";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDlrLrXnIi2t2hxT7tVpZ24I6-0gPnS_aw",

@@ -9,35 +9,52 @@
         >Join right now to students community from whole over the
         world!</v-card-subtitle
       >
-      <v-form @submit.prevent="loginUser()" class="pa-8">
-        <v-text-field
-          v-model="loginData.email"
-          label="Email"
-          outlined
-          color="indigo lighten-1"
-          type="email"
-        ></v-text-field>
-        <v-text-field
-          v-model="loginData.password"
-          label="Password"
-          outlined
-          color="indigo lighten-1"
-          type="password"
-        ></v-text-field>
-        <v-btn
-          type="submit"
-          class="font-weight-bold"
-          large
-          color="indigo lighten-1"
-          block
-        >
-          Sign in
-          <v-icon class="align-self-start" right>mdi-chevron-right</v-icon>
-          <v-icon class="ml-n2 align-self-start" right
-            >mdi-chevron-right</v-icon
+      <ValidationObserver ref="form" v-slot="{ passes, invalid }">
+        <v-form @submit.prevent="passes(loginUser)" class="pa-8">
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="email"
+            rules="required|email"
           >
-        </v-btn>
-      </v-form>
+            <v-text-field
+              v-model="loginData.email"
+              label="Email"
+              outlined
+              color="indigo lighten-1"
+              type="email"
+              :error-messages="errors"
+            ></v-text-field>
+          </ValidationProvider>
+          <ValidationProvider
+            v-slot="{ errors }"
+            name="password"
+            rules="required"
+          >
+            <v-text-field
+              v-model="loginData.password"
+              label="Password"
+              outlined
+              color="indigo lighten-1"
+              type="password"
+              :error-messages="errors"
+            ></v-text-field>
+          </ValidationProvider>
+          <v-btn
+            type="submit"
+            class="font-weight-bold"
+            large
+            color="indigo lighten-1"
+            block
+            :disabled="invalid"
+          >
+            Sign in
+            <v-icon class="align-self-start" right>mdi-chevron-right</v-icon>
+            <v-icon class="ml-n2 align-self-start" right
+              >mdi-chevron-right</v-icon
+            >
+          </v-btn>
+        </v-form>
+      </ValidationObserver>
       <div class="d-flex align-center px-8 py-4">
         <v-divider></v-divider>
         <span class="px-4">OR</span>
@@ -72,6 +89,7 @@
 
 <script lang="ts">
   import { Vue, Component } from "vue-property-decorator";
+  import { ValidationProvider, ValidationObserver } from "vee-validate";
 
   import { URL } from "@/utils/utils";
   import { SocketModule } from "@/store/modules/Socket";
@@ -79,11 +97,15 @@
   import { AuthService } from "@/services/AuthService";
   import { UtilsModule } from "@/store/modules/Utils";
 
-  @Component
+  @Component({ components: { ValidationProvider, ValidationObserver } })
   export default class Home extends Vue {
     loginData = {
       email: "",
       password: "",
+    };
+
+    $refs!: {
+      form: InstanceType<typeof ValidationObserver>;
     };
 
     async loginUser(): Promise<void> {
@@ -93,8 +115,13 @@
         UserModule.setAuthUser(authUser);
         SocketModule.joinRoom(SocketModule.rooms[0].name);
         this.$router.push({ name: "Chat" });
-      } catch (error) {
-        console.error(error);
+      } catch (err) {
+        // TODO: Implement error response type interface
+        // @ts-ignore
+        const errors = err.response.data.errors;
+        this.$refs.form.setErrors({
+          password: errors.password?.msg,
+        });
       }
       UtilsModule.setLoader(false);
     }
