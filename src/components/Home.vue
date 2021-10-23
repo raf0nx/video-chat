@@ -96,6 +96,7 @@
   import { UserModule } from "@/store/modules/User";
   import { AuthService } from "@/services/AuthService";
   import { UtilsModule } from "@/store/modules/Utils";
+	import { ErrorValidationResponse } from "@/interfaces/ErrorValidationResponse";
 
   @Component({ components: { ValidationProvider, ValidationObserver } })
   export default class Home extends Vue {
@@ -115,12 +116,10 @@
         UserModule.setAuthUser(authUser);
         SocketModule.joinRoom(SocketModule.rooms[0].name);
         this.$router.push({ name: "Chat" });
-      } catch (err) {
-        // TODO: Implement error response type interface
-        // @ts-ignore
-        const errors = err.response.data.errors;
+      } catch (err: any) {
+        const errors = (err.response as ErrorValidationResponse ).data.errors;
         this.$refs.form.setErrors({
-          password: errors.password?.msg,
+          password: errors.password.msg,
         });
       }
       UtilsModule.setLoader(false);

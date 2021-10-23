@@ -102,6 +102,7 @@
   import { RegisterData } from "@/interfaces/RegisterData";
   import { AuthService } from "@/services/AuthService";
   import { UtilsModule } from "@/store/modules/Utils";
+	import { ErrorValidationResponse } from "@/interfaces/ErrorValidationResponse";
 
   @Component({ components: { ValidationProvider, ValidationObserver } })
   export default class Register extends Vue {
@@ -121,15 +122,13 @@
       try {
         await AuthService.register(this.registerData);
         this.$router.push({ name: "Home" });
-      } catch (err) {
-        // TODO: Implement error response type interface
-        // @ts-ignore
-        const errors = err.response.data.errors;
+      } catch (err: any) {
+        const errors = (err.response as ErrorValidationResponse ).data.errors;
         this.$refs.form.setErrors({
-          name: errors.name?.msg,
-          email: errors.email?.msg,
-          password: errors.password?.msg,
-          passwordConfirm: errors.passwordConfirm?.msg,
+          name: errors.name.msg,
+          email: errors.email.msg,
+          password: errors.password.msg,
+          passwordConfirm: errors.passwordConfirm.msg,
         });
       }
       UtilsModule.setLoader(false);
