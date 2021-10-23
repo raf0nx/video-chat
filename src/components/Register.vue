@@ -13,7 +13,7 @@
           <ValidationProvider
             v-slot="{ errors }"
             name="name"
-            rules="required|alpha_num|min:3|max:255"
+            rules="required|alpha_num_spaces|min:3|max:255"
           >
             <v-text-field
               v-model="registerData.name"

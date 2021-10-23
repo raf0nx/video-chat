@@ -1,18 +1,12 @@
 import { extend } from "vee-validate";
 
 import {
-  alpha_num,
   confirmed,
   email,
   min,
   max,
   required,
 } from "vee-validate/dist/rules";
-
-extend("alpha_num", {
-  ...alpha_num,
-  message: "Should contain only letters and numbers",
-});
 
 extend("confirmed", {
   ...confirmed,
@@ -42,7 +36,7 @@ extend("required", {
 extend("number", {
   message: "Must contain at least one number",
   validate: value => {
-    const numberRegex = new RegExp("^(?=.*[0-9])");
+    const numberRegex = /^(?=.*[0-9])/;
     return numberRegex.test(value);
   },
 });
@@ -50,7 +44,7 @@ extend("number", {
 extend("uppercase", {
   message: "Must contain at least one uppercase character",
   validate: value => {
-    const uppercaseRegex = new RegExp("^(?=.*[A-Z])");
+    const uppercaseRegex = /^(?=.*[A-Z])/;
     return uppercaseRegex.test(value);
   },
 });
@@ -58,7 +52,15 @@ extend("uppercase", {
 extend("special_char", {
   message: "Must contain at least one special character",
   validate: value => {
-    const specialCharRegex = new RegExp("^(?=.*[!@#$%^&*])(?=.{8,})");
+    const specialCharRegex = /^(?=.*[!@#$%^&*])(?=.{8,})/;
     return specialCharRegex.test(value);
   },
 });
+
+extend("alpha_num_spaces", {
+	message: "Should contain only letters, numbers and spaces",
+	validate: value => {
+		const alphaNumSpacesRegex = /^[a-z\d\s]+$/i;
+		return alphaNumSpacesRegex.test(value);
+	}
+})
