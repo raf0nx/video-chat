@@ -1,5 +1,6 @@
 module.exports = {
-  transpileDependencies: [
-    'vuetify'
-  ]
-}
+	transpileDependencies: ["vuetify"],
+	configureWebpack: config => {
+		config.devtool = "source-map";
+	},
+};
