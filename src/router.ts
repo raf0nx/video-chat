@@ -37,6 +37,7 @@ const routes: Array<RouteConfig> = [
   {
     path: "/error",
     name: "Error",
+		props: true,
     component: Error,
   },
 ];
@@ -51,7 +52,11 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, _, next) => {
-  const authUser = UserModule.authUser || (await UserModule.getAuthUser());
+	if (to.name === "Error") {
+		next();
+	}
+
+	const authUser = UserModule.authUser || (await UserModule.getAuthUser());
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     authUser ? next() : next({ name: "Home" });
